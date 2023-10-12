@@ -1,0 +1,16 @@
+  // React.useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const result = await api.getSrt("7af83c4b-5c23-423b-a0ee-84ff942bcb25");
+  //       console.log("result status:" + result.status);
+  //       console.log("data:" + result.data)
+  //       setData(result.data);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       // setError(error);
+  //       console.log(error);
+  //       setLoading(true);
+  //     }
+  //   };
+  //   fetchData();
+  // }, []);

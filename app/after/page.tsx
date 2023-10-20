@@ -143,7 +143,7 @@ export default function After() {
           {/* <div> */}
           {/* create a upload video button*/}
           {/* <div className='ml-100'> */}
-          <Button variant="contained" component="label" disabled={uploading}>
+          <Button variant="contained" component="label" disabled={true}>
             Upload Video
             <input type="file" hidden onChange={handleUploadVideo} />
           </Button>

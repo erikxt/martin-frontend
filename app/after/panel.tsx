@@ -1,28 +1,68 @@
 'use client'
 
-import { Box, Button, Card, CardHeader, Container, Divider, LinearProgress, Slider } from '@mui/material'
+import { Box, Button, Card, CardHeader, Container, Divider, Grid, IconButton, Input, InputAdornment, LinearProgress, List, ListItem, ListItemText, Paper, TextField } from '@mui/material'
+import { styled } from "@mui/material/styles";
+import { useEffect, useState } from 'react';
+import api from "../../lib/service";
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+
 
 interface Props {
     title: string;
     uploading: boolean;
     loading: boolean;
+    fileName: string;
+    platform: string;
 }
 
-const Panel: React.FC<Props> = ({ title, uploading, loading }) => {
+interface Question {
+    question: string;
+    type: string
+}
 
-    const marks = [
-        {
-            value: 0,
-            label: '0',
-        },
-        {
-            value: 100,
-            label: '1.0',
-        },
-    ];
+const Item = styled(Paper)(({ theme }) => ({
+    backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+    ...theme.typography.body2,
+    padding: theme.spacing(1),
+    textAlign: 'center',
+    color: theme.palette.text.secondary,
+}));
 
-    function valuetext(value: number) {
-        return `${value}`;
+const Panel: React.FC<Props> = ({ title, uploading, loading, fileName, platform }) => {
+    const [summary, setSummary] = useState()
+    const [actionItems, setActionItems] = useState([])
+    const [bleuScore, setBleuScore] = useState(0)
+    const [meteorScore, setMeteorScore] = useState(0)
+    const [rougeScore, setRougeScore] = useState(0)
+    const [questions, setQuestions] = useState([])
+    const [questionInput, setQuestionInput] = useState("")
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const res = await api.getNlgData(fileName, platform);
+            if (res.status == 200) {
+                console.log(res.data);
+                setSummary(res.data.summary);
+                setActionItems(res.data.action_items);
+                setBleuScore(res.data.bleu);
+                setMeteorScore(res.data.meteor);
+                setRougeScore(res.data.rouge);
+                setQuestions(res.data.questions);
+            }
+        }
+        if (!loading && !uploading) {
+            fetchData();
+            setQuestionInput('')
+        }
+    }, [fileName, loading, platform, uploading])
+
+    const handleSendMessageClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+        if (questionInput != "") {
+            setQuestionInput("");
+            alert("mock send a message event")
+        } else {
+            alert("blank msg!")
+        }
     }
 
     return (
@@ -31,56 +71,112 @@ const Panel: React.FC<Props> = ({ title, uploading, loading }) => {
                 <div className='flex justify-center items-center'>
                     <h1>{title}</h1>
                 </div>
-                <Container className='bg-cyan-100'>
-                    <Button variant="contained" component="label" disabled={uploading && loading}>Generate</Button>
-                    <Card variant="outlined" className='mt-2 bg-inherit'>
+                <Container className='mt-2'>
+                    {/* <Button variant="contained" component="label" disabled={uploading && loading}>Generate Summary</Button> */}
+                    <Card variant="outlined" className='mt-5 bg-cyan-100'>
                         <CardHeader title='What have you missed?' />
-                        <p>The text discusses the role that artificial intelligence (AI) and machine learning can play in addressing complex real-world problems such as public health, climate change, and disaster management. The speakers highlight the complexities involved, including the various stakeholders, logistical constraints, and data privacy issues. Through specialized training, participants are expected to gain hands-on experience with AI applications and how they fit into these broader challenges. The conversation emphasizes both the potential and constraints of using AI as a tool for good, with the hope that learners can build, evaluate and apply successful AI projects to tackle important societal issues.
+                        <p>{summary}
                         </p>
-                        <div className='flex padding-10'>
+                        <div className='flex padding-10 mt-1'>
                             <Box sx={{ width: '15%' }}>
-                                <h1>Bleu</h1>
-                            </Box>
-                            <Box sx={{ width: '75%' }}>
-                                <LinearProgress variant="buffer" value={50} />
+                                <h1>Bleu:</h1>
                             </Box>
                             <Box sx={{ width: '10%' }}>
+                                {Math.round(bleuScore * 100) / 100}
+                            </Box>
+                            <Box sx={{ width: '65%' }}>
+                                <LinearProgress variant="determinate" value={bleuScore * 100} />
+                            </Box>
+                            <Box sx={{ width: '10%', textAlign: 'center' }}>
                                 <h1>1.0</h1>
                             </Box>
                         </div>
-                        <div className='flex padding-10'>
+                        <div className='flex padding-10 mt-1'>
                             <Box sx={{ width: '15%' }}>
-                                <h1>Rouge</h1>
-                            </Box>
-                            <Box sx={{ width: '75%' }}>
-                                <LinearProgress variant="buffer" value={50} />
+                                <h1>Rouge:</h1>
                             </Box>
                             <Box sx={{ width: '10%' }}>
+                                {Math.round(rougeScore * 100) / 100}
+                            </Box>
+                            <Box sx={{ width: '65%' }}>
+                                <LinearProgress variant="determinate" value={rougeScore * 100} />
+                            </Box>
+                            <Box sx={{ width: '10%', textAlign: 'center' }}>
                                 <h1>1.0</h1>
                             </Box>
                         </div>
-                        <div className='flex padding-10'>
+                        <div className='flex padding-10 mt-1'>
                             <Box sx={{ width: '15%' }}>
-                                <h1>Mentor</h1>
-                            </Box>
-                            <Box sx={{ width: '75%' }}>
-                                <LinearProgress variant="buffer" value={50} />
+                                <h1>Meteor:</h1>
                             </Box>
                             <Box sx={{ width: '10%' }}>
+                                {Math.round(meteorScore * 100) / 100}
+                            </Box>
+                            <Box sx={{ width: '65%' }}>
+                                <LinearProgress variant="determinate" value={meteorScore * 100} />
+                            </Box>
+                            <Box sx={{ width: '10%', textAlign: 'center' }}>
                                 <h1>1.0</h1>
                             </Box>
                         </div>
                     </Card>
-                </Container>
-            </div>
-            <div>
-                <Container className=''>
-                    <Card>
-                        adfadf
+                    <Divider variant='inset' />
+                    <Card variant="outlined" className='mt-2 bg-cyan-100'>
+                        <p><strong>Action Itmes</strong></p>
+                        {/* {actionItems.length} */}
+                        {actionItems && actionItems.length > 0 ?
+                            (
+                                <List>
+                                    {actionItems.map((item, index) => (
+                                        <ListItem key={index}>
+                                            <ListItemText primary={item} />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            )
+                            : <p>no action item</p>
+                        }
                     </Card>
                 </Container>
-            </div>
-        </div>
+                <Container className='mt-5'>
+                    <p><strong>Can&apos;t find what you&apos;re looking for? Ask {title}</strong></p>
+                    <Grid container spacing={2}>
+                        {
+                            questions.map((item: Question, index: number) => (
+                                <Grid item xs={6} key={index}>
+                                    <Item onClick={() => setQuestionInput(item.question)}>
+                                        {/* <Item onClick={handleQuestionClick}> */}
+                                        {item.question}
+                                    </Item>
+                                </Grid>
+                            ))
+                        }
+                    </Grid>
+                    <div className='mt-3'>
+                        <TextField id="outlined-basic" placeholder="Send a message" InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="send a message"
+                                        edge="end"
+                                        onClick={handleSendMessageClick}
+                                    >
+                                        <ArrowForwardIcon />
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                            variant="outlined"
+                            fullWidth
+                            value={questionInput}
+                            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                setQuestionInput(event.target.value);
+                            }}
+                        />
+                    </div>
+                </Container>
+            </div >=
+        </div >
     )
 }
 

@@ -2,7 +2,7 @@ import axios from "axios";
 // 创建axios实例
 const instance = axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_ADDR,
-  timeout: 10000,
+  timeout: 20000,
   validateStatus: () => true,
 });
 instance.defaults.withCredentials=true;

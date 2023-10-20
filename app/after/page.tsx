@@ -7,7 +7,7 @@ import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar from "@mui/material/Avatar";
 import api from "../../lib/service";
-import { Button, Paper, Container, Card, CardHeader } from '@mui/material';
+import { Button } from '@mui/material';
 
 import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon';
 import Panel from './panel';
@@ -28,7 +28,7 @@ function HomeIcon(props: SvgIconProps) {
 
 export default function After() {
   const [selectedIndex, setSelectedIndex] = React.useState(1);
-  const [data, setData] = React.useState([]);
+  const [srtData, setSrtData] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(false);
   const [fileName, setFileName] = React.useState('default');
@@ -69,7 +69,7 @@ export default function After() {
         // check res.status is 200 or not
         console.log(res.status);
         if (res.status == 200) {
-          setData(res.data);
+          setSrtData(res.data);
           setLoading(false);
         } else if (res.status == 404) {
           setLoading(true);
@@ -95,6 +95,9 @@ export default function After() {
   }, [fileName, loading]);
 
   const handleUploadVideo = async (event: any) => {
+    setError(false);
+    setLoading(false);
+    setUploading(false);
     const myPlayer = playerRef.current as unknown as HTMLVideoElement;
     var playFileName = fileName;
     try {
@@ -110,9 +113,11 @@ export default function After() {
         console.log("upload video successfully");
         playFileName = res.data.fileName;
         setFileName(res.data.fileName);
+      } else {
+        alert(res.data.detail);
       }
     } catch (error) {
-      console.log(error);
+      alert(error);
       setError(true);
     }
     // enable the upload button
@@ -165,7 +170,7 @@ export default function After() {
           <List sx={{ width: "100%", maxWidth: 480, bgcolor: "background.paper" }}>
             {error ? (<p>Something went wrong...</p>) :
               !loading && !uploading ? (
-                data.map((item: any) => (
+                srtData.map((item: any) => (
                   <div key={item.id}>
                     <ListItemButton alignItems="flex-start" key={item.id}
                       onClick={(event) => handleListItemClick(event, 0, item.start)}
@@ -192,8 +197,9 @@ export default function After() {
             }
           </List>
         </div>
-        <Panel title="Martin" uploading={uploading} loading={loading}/>
-        <Panel title="GPT-4" uploading={uploading} loading={loading}/>
+        <Panel title="Martin" uploading={uploading} loading={loading} fileName={fileName} platform='gpt-4'/>
+        <Panel title="GPT-4" uploading={uploading} loading={loading} fileName={fileName} platform='gpt-4'/>
+      
       </div>
     </>
   );

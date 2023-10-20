@@ -11,6 +11,9 @@ const ApiService = {
     return http.post("/uploadfile", formData, {headers: {
       "Content-Type": "multipart/form-data",
     }});
+  },
+  getNlgData(fileName: string, platform: string) {
+    return http.get("/nlg/" + fileName + "?platform=" + platform)
   }
 };
 
